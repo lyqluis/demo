@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!--bootstrap响应式meta标签-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>ToDoList</title>
+    <link rel="stylesheet" href="">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .container{
+            background: #f9f7f7;
+        }
+        .back1{
+            background: #112d4e;
+            color: white;
+            margin-top: 0;
+            margin-bottom: 0;
+            height: 3em;
+            line-height: 3em;
+        }
+        .back2{
+            background: #3f72af; 
+            height: 5em;
+            line-height: 5em;
+        }
+        .back3{
+            background: #dbe2ef;
+            height: 3em;
+            line-height: 3em;       
+        }
+        .back2 input{
+            height: 2em;
+            border-radius: 5px;
+        }
+        .btn-primary{
+            background: #112d4e;
+        }
+        i span{
+            line-height: 2.5em;
+        }
+        i input{
+            height: 2em
+        }
+        .del{
+            text-decoration:line-through;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container" id="todolist">
+        <h1 class="row text-center back1">ToDoList</h1>
+        
+            <div class="row text-center back2">
+                <input type="text" v-model='value' @keyup.enter='add'>
+                <button class="btn btn-primary" @click='add'>Add to the List</button>
+            </div>
+            <div class="row text-center back3">
+                <a href="#all" class="">all: {{allCount}} </a>
+                <a href="#unfinished" class="">| unfinished: {{unfinishedCount}} </a>
+                <a href="#finished" class="">| finished: {{finished}}</a>
+            </div>
+
+            <ul class="col-md-12 col-md-offset-3">
+                <i v-for='item in filteredList' class="row">
+                    <input type="checkbox" v-model='item.checked' class="col-md-1">
+                    <span class="col-md-2" :class="{del: item.checked}">{{item.sth}}</span>
+                    <!--<input v-for='item in list' :value="item.sth">-->
+                    <button class="btn btn-warning ">important</button>
+                    <button class="btn btn-danger " @click='del(item)'>delete</button>
+                    </li>
+            </ul>
+        
+    </div>
+
+</body>
+<script src="todolist.js"></script>
+
+</html>
