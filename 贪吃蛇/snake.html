@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet" />
+  <style type="text/css">
+    * {
+      margin: 0;
+      padding: 0;
+      font-family: 'Press Start 2P';
+      box-sizing: content-box;
+      color: #F2D7EE
+    }
+
+    body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: #23254E;
+    }
+
+    .screen {
+      width: 100%;
+      min-height: 350px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .head {
+      width: 330px;
+      display: flex;
+      justify-content: space-between;
+      margin: 20px;
+    }
+
+    .gameover {
+      display: none;
+    }
+
+    .title {
+      text-align: center;
+      font-size: 40px;
+    }
+
+    .dis {
+      margin: 20px;
+    }
+
+    .key {
+      background: #A5668B;
+    }
+
+    .map-wrapper {
+      position: relative;
+      border: 4px #F2D7EE solid;
+      margin: 0 auto;
+    }
+
+    .line {
+      position: absolute;
+      background: transparent;
+    }
+
+    .row {
+      border-top: 1px solid #F2D7EE;
+    }
+
+    .column {
+      border-left: 1px solid #F2D7EE;
+    }
+
+    .row:first-child {
+      border: none;
+    }
+
+    .column:nth-child(2) {
+      border: none;
+    }
+
+    .snakehead {
+      background: #A5668B;
+      z-index: 10;
+    }
+
+    .snakebody {
+      background: #69306D;
+      z-index: 10;
+    }
+
+    .food {
+      background: #FED766;
+      z-index: 10;
+    }
+
+    .game {
+      display: none;
+    }
+
+    .btn-wrapper {
+      margin: 20px;
+      display: flex;
+      justify-content: space-around;
+      width: 330px;
+      /* background: lightcoral; */
+    }
+
+    .btn {
+      height: 20px;
+      padding: 5px;
+      text-align: center;
+      line-height: 20px;
+      background: #A5668B;
+      border-right: 2px solid #69306D;
+      border-bottom: 2px solid #69306D;
+      border-top: 2px solid #D3BCC0;
+      border-left: 2px solid #D3BCC0;
+    }
+
+    .btn:hover {
+      cursor: pointer;
+    }
+
+    .btn-on {
+      border-right: 2px solid #D3BCC0;
+      border-bottom: 2px solid #D3BCC0;
+      border-top: 2px solid #69306D;
+      border-left: 2px solid #69306D;
+    }
+  </style>
+  <title>doodle snake</title>
+</head>
+
+<body>
+  <div class="head">
+    <div class="item">Level:<span class="num level">1</span></div>
+    <div class="item">Score:<span class="num score">0</span>
+    </div>
+  </div>
+  <div class="start screen">
+    <div class="title">SNAKE</div>
+    <div class="dis">press <span class="key">space</span> to start a new game</div>
+  </div>
+  <div class="screen">
+    <div class="gameover">
+      <div class="title">GAME OVER</div>
+      <div class="dis">press <span class="key">enter</span> to restart the game</div>
+    </div>
+  </div>
+  <div class="game">
+    <div class="map-wrapper"></div>
+    <div class="btn-wrapper">
+      <div class="pause btn">pause</div>
+      <div class="addline btn">gridline</div>
+    </div>
+  </div>
+
+  <script>
+    const MAP_WIDTH = 20; //地图大小
+    const CELL = 16; //单元长度
+    const SPEED = 400; //初始速度
+    const SNAKE_LEN = 5; //蛇初始长度
+    const MAP = document.querySelector('.map-wrapper');
+    const GAME = document.querySelector('.game');
+    const GAMEOVER = document.querySelector('.gameover');
+    const STARTGAME = document.querySelector('.start');
+    const SCORE = document.querySelector('.score');
+    const LEVEL = document.querySelector('.level');
+    const DIR = { //方向
+      left: {
+        x: -1,
+        y: 0
+      },
+      right: {
+        x: 1,
+        y: 0
+      },
+      up: {
+        x: 0,
+        y: -1
+      },
+      down: {
+        x: 0,
+        y: 1
+      }
+    };
+    let snake = null; //蛇 
+    let food = null; //食物
+
+    //随机数 
+    function random(m, n) {
+      return Math.round(Math.random() * (n - m) + m);
+    }
+
+    //添加网格
+    function map(mapWidth) {
+      let frag = document.createDocumentFragment();
+      for (let i = 0; i < mapWidth; i++) {
+        let row = document.createElement('div');
+        let column = document.createElement('div');
+        row.style.width = mapWidth * CELL + 'px';
+        column.style.height = mapWidth * CELL + 'px';
+        row.style.height = CELL + 'px';
+        column.style.width = CELL + 'px';
+        row.style.top = i * CELL + 'px';
+        column.style.left = i * CELL + 'px';
+        row.className = 'line row';
+        column.className = 'line column';
+        frag.appendChild(row);
+        frag.appendChild(column);
+      }
+      MAP.appendChild(frag);
+      frag = null;
+    }
+
+    //操作cell 构造函数
+    class Cell {
+      constructor(x, y, classname) {
+        this.x = x;
+        this.y = y;
+        this.cell = document.createElement('div');
+        this.classname = classname
+      }
+      //画点
+      add() {
+        this.cell.style.position = 'absolute';
+        this.cell.style.width = CELL + 'px';
+        this.cell.style.height = CELL + 'px';
+        this.cell.style.left = this.x * CELL + 'px';
+        this.cell.style.top = this.y * CELL + 'px';
+        this.cell.className = this.classname || '';
+        MAP.appendChild(this.cell);
+      }
+      //删除点
+      remove() {
+        // console.log(this)
+        MAP.removeChild(this.cell);
+      }
+    }
+
+    //蛇 构造函数
+    class Snake {
+      constructor() {
+        this.head = null; //蛇头
+        this.headPos = [];
+        this.tail = null; //蛇尾
+        this.pos = []; //身体位置 二维数组
+        this.direction = null; //行走方向
+      }
+      //初始化蛇
+      init() {
+        //创建蛇头
+        let _x = random(SNAKE_LEN - 1, MAP_WIDTH - SNAKE_LEN); //随机生成坐标
+        let _y = random(SNAKE_LEN - 1, MAP_WIDTH - SNAKE_LEN);
+        let head = new Cell(_x, _y, 'snakehead');
+        head.add();
+        this.head = head; // 存储信息
+        this.pos.push([_x, _y]);
+
+        //随机初始方向 >1/2向左走或者向上走
+        this.direction = (function randomDir(x, y) {
+          let dirArr = [];
+          dirArr.length = 2;
+          dirArr[0] = x < MAP_WIDTH / 2 ? 'right' : 'left';
+          dirArr[1] = x < MAP_WIDTH / 2 ? 'down' : 'up';
+          return DIR[dirArr[random(0, 1)]];
+        })(_x, _y)
+
+        //创建蛇身
+        // console.log(this.direction)
+        let pre = this.head;
+        for (let i = 1; i < SNAKE_LEN; i++) {
+          let body = new Cell(_x - i * this.direction.x, _y - i * this.direction.y, 'snakebody');
+          body.add();
+          this.head.nxt = i === 1 ? body : this.head.nxt; //形成链表 - 用来方便的找到前后对应的cell对象
+          // console.log(this.head)
+          //更新表链
+          body.pre = pre;
+          pre = body;
+          this.pos.push([_x - i * this.direction.x, _y - i * this.direction.y]);
+          //保存蛇尾
+          this.tail = i === SNAKE_LEN - 1 ? body : null;
+          // console.log(body)
+        }
+      }
+
+      //判断蛇头前面的cell
+      check() {
+        let getFood = false;
+        // console.log(this.head)
+        let nextPos = [this.head.x + this.direction.x, this.head.y + this.direction
+          .y
+        ]; // [蛇头当前坐标this.head + 1*方向系数] //nextpos[0]-x nextpos[1]-y
+
+        //蛇身  如果this.pos里有数组与nextPos相等，则撞到
+        for (let i = 0, len = this.pos.length; i < len; i++) {
+          if (nextPos[0] === this.pos[i][0] && nextPos[1] === this.pos[i][1]) {
+            this.die();
+            return;
+          }
+        }
+        //墙
+        for (let i = 0, len = nextPos.length; i < len; i++) {
+          if (nextPos[i] < 0 || nextPos[i] > MAP_WIDTH - 1) {
+            this.die();
+            return;
+          }
+        }
+        //食物
+        if (nextPos[0] === food.pos[0] && nextPos[1] === food.pos[1]) {
+          this.eat();
+          getFood = true;
+        }
+        //走
+        this.move(nextPos, getFood);
+      }
+
+      //判断后的行动
+      move(nextPos, getFood) {
+        //创建一个新身体在原来蛇头的位置
+        let newBody = new Cell(this.head.x, this.head.y, 'snakebody');
+        newBody.nxt = this.head.nxt;
+        this.head.nxt.pre = newBody;
+        this.head.remove();
+        newBody.add();
+        //在蛇头下一个位置创建一个新蛇头
+        let newHead = new Cell(nextPos[0], nextPos[1], 'snakehead');
+        newHead.add();
+        newBody.pre = newHead;
+        this.head = newHead; //更新蛇头
+        newHead.nxt = newBody;
+        this.pos.unshift(nextPos); //更新this.pos
+        //移除旧蛇尾
+        if (!getFood) { //没食物, this.tail变前面一个, 删除tail
+          // console.log('remove tail');
+          this.tail.remove();
+          this.tail = this.tail.pre;
+          this.pos.pop();
+        }
+      }
+      eat() {
+        food.remove();
+        createFood();
+        game.score++;
+        SCORE.innerHTML = game.score;
+        if (!(game.score % 10)) {
+          game.level++;
+          LEVEL.innerHTML = game.level;
+        }
+      }
+      die() {
+        game.over();
+      }
+
+    }
+
+    //创建食物
+    function createFood() {
+      let include = true;
+      let x = null,
+        y = null;
+      (function randomFood() {
+        x = random(0, MAP_WIDTH - 1); //随机生成坐标
+        y = random(0, MAP_WIDTH - 1);
+        snake.pos.forEach(val => { //食物不在蛇身上
+          if ((x === val[0]) && (y === val[1])) randomFood();
+        })
+      })()
+      food = new Cell(x, y, 'food');
+      food.pos = [x, y];
+      food.add();
+    }
+
+    //游戏本身 构造函数
+    class Game {
+      constructor() {
+        this.pause = true;
+        this.score = 0;
+        this.timer = null;
+        this.level = 1;
+        this.restart = false;
+        this.gridline = false;
+      }
+
+      init() {
+        //地图
+        MAP.style.width = MAP_WIDTH * CELL + 'px';
+        MAP.style.height = MAP_WIDTH * CELL + 'px';
+        let btns = document.querySelectorAll('.btn');
+        btns.forEach(el => {
+          el.className = el.className.replace(' btn-on', '');
+        });
+        //分数
+        SCORE.innerHTML = this.score;
+        LEVEL.innerHTML = this.level;
+        //画蛇
+        snake = new Snake();
+        snake.init();
+        //食物
+        createFood();
+        //键盘
+        document.onkeydown = e => {
+          switch (e.keyCode) {
+            case 37:
+              snake.direction = snake.direction === DIR.right ? DIR.right : DIR.left;
+              break;
+            case 38:
+              snake.direction = snake.direction === DIR.down ? DIR.down : DIR.up;
+              break;
+            case 39:
+              snake.direction = snake.direction === DIR.left ? DIR.left : DIR.right;
+              break;
+            case 40:
+              snake.direction = snake.direction === DIR.up ? DIR.up : DIR.down;
+              break;
+            case 32: //space 开始 / 暂停
+              if (this.restart) return
+              let pauseBtn = document.querySelector('.pause');
+              if (this.pause) {
+                pauseBtn.className = pauseBtn.className.replace(' btn-on', '');
+                this.start();
+              } else {
+                pauseBtn.className += ' btn-on';
+                this.stop();
+              }
+              this.pause = !this.pause;
+              break;
+            case 13: //enter restart
+              if (this.restart) {
+                game = new Game();
+                game.init();
+                game.start();
+                game.pause = false;
+              }
+          }
+        }
+        document.onclick = e => {
+          let target = e.target || e.srcElement;
+          if (target.innerHTML === 'pause') {
+            if (this.pause) {
+              target.className = target.className.replace(' btn-on', '');
+              this.start();
+            } else {
+              target.className += ' btn-on';
+              this.stop();
+            }
+            this.pause = !this.pause;
+          } else if (target.innerHTML === 'gridline') {
+            if (!this.gridline) {
+              target.className += ' btn-on'
+              map(MAP_WIDTH);
+            } else {
+              target.className = target.className.replace(' btn-on', '');
+              let lines = document.querySelectorAll('.line');
+              lines.forEach(val => {
+                MAP.removeChild(val);
+              })
+            }
+            this.gridline = !this.gridline;
+          }
+        }
+      }
+
+      start() {
+        if (this.pause && !this.score) {
+          STARTGAME.style.display = 'none';
+          GAMEOVER.style.display = 'none';
+          GAME.style.display = 'block';
+        }
+        this.timer = setInterval(() => {
+          snake.check();
+        }, SPEED / this.level);
+      }
+      stop() {
+        clearInterval(this.timer);
+      }
+      over() {
+        this.stop();
+        GAMEOVER.style.display = 'block';
+        GAME.style.display = 'none';
+        MAP.innerHTML = '';
+        this.restart = true;
+      }
+    }
+
+    let game = new Game;
+    game.init();
+  </script>
+</body>
+
+</html>
