@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Press Start 2P';
+      color: #FFBCBE;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: #4A4565;
+    }
+
+    .wrapper {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .title {
+      font-size: 30px;
+      margin: 20px;
+    }
+
+    .btitle {
+      font-size: 50px;
+      margin: 20px;
+    }
+
+    .game {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .map-wrapper {
+      overflow: hidden;
+      border: 4px #D2AED2 solid;
+      margin: 0 20px;
+      position: relative;
+      box-sizing: content-box;
+    }
+
+    .msg {
+      margin: 20px;
+    }
+
+    .msg>span {
+      background: #73617E;
+      animation: flash 1000ms infinite;
+    }
+
+    .info {
+      margin: 20px auto;
+    }
+
+    .preview {
+      border: 4px #D2AED2 solid;
+      margin: 0 auto;
+      position: relative;
+      box-sizing: content-box;
+    }
+
+    .active-block {
+      position: absolute;
+      border-right: 2px solid #34495e;
+      border-bottom: 2px solid #34495e;
+      border-top: 2px solid #ecf0f1;
+      border-left: 2px solid #ecf0f1;
+    }
+
+    .dead-block {
+      position: absolute;
+    }
+
+    .gameover {
+      display: none;
+    }
+
+    @keyframes flash {
+      from {
+        opacity: 1.0;
+      }
+
+      50% {
+        opacity: 0.5;
+      }
+
+      to {
+        opacity: 1.0;
+      }
+    }
+  </style>
+  <title>Tetris</title>
+</head>
+
+<body>
+  <div class="title">TETRIS</div>
+  <div class="wrapper start">
+    <div class="msg">
+      press <span>enter</span> to start the game
+    </div>
+  </div>
+  <div class="game">
+    <div class="map-wrapper"></div>
+    <div class="info-wrapper">
+      <div class="preview"></div>
+      <div class="info">level:<span class="level">1</span></div>
+      <div class="info">score:<span class="score">0</span></div>
+    </div>
+  </div>
+  <div class="wrapper gameover">
+    <div class="btitle">GAME OVER</div>
+    <div class="msg">
+      press <span>enter</span> to restart the game
+    </div>
+  </div>
+  <script>
+    const CELL = 20;
+    const MAP_LEN = 10;
+    const MAP_COL = 20;
+    const MAP_WIDTH = CELL * MAP_LEN;
+    const MAP_HEIGHT = CELL * MAP_COL;
+    const MAP = document.querySelector('.map-wrapper');
+    const PREVIEW = document.querySelector('.preview');
+    const SCORE = document.querySelector('.score');
+    const LEVEL = document.querySelector('.level');
+    const START = document.querySelector('.start');
+    const GAME = document.querySelector('.game');
+    const GAME_OVER = document.querySelector('.gameover');
+    const COLOR = ['#6BB4E4', '#67D997', '#ED7C71', '#ECA15E', '#FBE67D', '#1abc9c'];
+    let block = null;
+    let nextBlock = null;
+    let map = null;
+    let game = null;
+    const BLOCKS = [
+      //L
+      [
+        [1, 0],
+        [1, 0],
+        [1, 1]
+      ],
+      [
+        [1, 1, 1],
+        [1, 0, 0]
+      ],
+      [
+        [1, 1],
+        [0, 1],
+        [0, 1]
+      ],
+      [
+        [0, 0, 1],
+        [1, 1, 1]
+      ],
+      //』
+      [
+        [0, 1],
+        [0, 1],
+        [1, 1]
+      ],
+      [
+        [1, 0, 0],
+        [1, 1, 1]
+      ],
+      [
+        [1, 1],
+        [1, 0],
+        [1, 0]
+      ],
+      [
+        [1, 1, 1],
+        [0, 0, 1]
+      ],
+      //l
+      [
+        [1],
+        [1],
+        [1],
+        [1]
+      ],
+      [
+        [1, 1, 1, 1]
+      ],
+      [
+        [1],
+        [1],
+        [1],
+        [1]
+      ],
+      [
+        [1, 1, 1, 1]
+      ],
+      //田
+      [
+        [1, 1],
+        [1, 1]
+      ],
+      [
+        [1, 1],
+        [1, 1]
+      ],
+      [
+        [1, 1],
+        [1, 1]
+      ],
+      [
+        [1, 1],
+        [1, 1]
+      ],
+      //T
+      [
+        [1, 1, 1],
+        [0, 1, 0]
+      ],
+      [
+        [0, 1],
+        [1, 1],
+        [0, 1]
+      ],
+      [
+        [0, 1, 0],
+        [1, 1, 1]
+      ],
+      [
+        [1, 0],
+        [1, 1],
+        [1, 0]
+      ],
+      //Z
+      [
+        [1, 1, 0],
+        [0, 1, 1]
+      ],
+      [
+        [0, 1],
+        [1, 1],
+        [1, 0]
+      ],
+      [
+        [1, 1, 0],
+        [0, 1, 1]
+      ],
+      [
+        [0, 1],
+        [1, 1],
+        [1, 0]
+      ],
+      //倒Z
+      [
+        [0, 1, 1],
+        [1, 1, 0]
+      ],
+      [
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ],
+      [
+        [0, 1, 1],
+        [1, 1, 0]
+      ],
+      [
+        [1, 0],
+        [1, 1],
+        [0, 1]
+      ]
+    ];
+
+    let random = (m, n) => {
+      return Math.floor(Math.random() * (n - m) + m);
+    }
+
+    class Cell {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        // this.className = className;
+        this.cell = document.createElement('div');
+      }
+      add(map, color) {
+        this.cell.style.width = CELL + 'px';
+        this.cell.style.height = CELL + 'px';
+        this.cell.className = 'active-block';
+        this.cell.style.background = color;
+        this.cell.style.left = `${this.x * CELL }px`
+        this.cell.style.top = `${this.y * CELL }px`
+        map.appendChild(this.cell);
+      }
+      move(x, y) {
+        this.cell.style.left = `${x * CELL }px`;
+        this.cell.style.top = `${y * CELL }px`;
+        this.x = x;
+        this.y = y;
+      }
+      remove(map) {
+        map.removeChild(this.cell);
+      }
+    }
+    class Map {
+      constructor() {
+        this.deadBlocks = [];
+      }
+    }
+
+    class Block {
+      constructor(map, fixed, arr, color) {
+        this.blockCells = [];
+        this.color = color;
+        this.arr = arr; //方块的形态
+        this.fixed = fixed; //位置是否随机
+        this.x = 1; //记录移动位置
+        this.y = 1; //记录移动位置
+        this.map = map;
+        this.pos = null; //所有方块cell的位置[]
+        this.rotateFlag = true; //是否可以旋转
+        this.moveFlag = true; //是否可以移动
+      }
+      // 初始化方块
+      init() {
+        this.arr = this.arr ? this.arr : BLOCKS[random(0, BLOCKS.length)];
+        //随机颜色
+        this.color = this.color || COLOR[random(0, COLOR.length - 1)];
+        //添加随机初始位置
+        if (!this.fixed) {
+          this.x = random(1, MAP_LEN - 4);
+          this.y = -1;
+        }
+        this.getXY(this.arr);
+      }
+      // 获取二维数组中1的坐标，并更新对应在map上的位置
+      getXY(arr, nodelist) {
+        let nowPos = [];
+        let nxtPos = [];
+        for (let i = 0, len = arr.length; i < len; i++) {
+          for (let j = 0, len = arr[i].length; j < len; j++) {
+            if (arr[i][j] === 1) {
+              if (!nodelist) { //初始化方块进行绘制
+                nowPos.push([i + this.x, j + this.y]);
+                let cell = new Cell(i + this.x, j + this.y);
+                cell.add(this.map, this.color);
+                this.blockCells.push(cell);
+              } else {
+                nxtPos.push([i + this.x, j + this.y]);
+              }
+            }
+          }
+        }
+        this.pos = nodelist ? this.pos : nowPos;
+        return nxtPos;
+      }
+      // 旋转变换
+      rotate(arr, nodelist) {
+        this.rotateFlag = true;
+        let rotateArr = [];
+        for (let i = 0, len = arr[0].length; i < len; i++) {
+          let inArr = [];
+          for (let j = arr.length - 1; j >= 0; j--) {
+            inArr.push(arr[j][i]);
+          }
+          rotateArr.push(inArr);
+        }
+
+        // 获得nxtPos
+        let nxtPos = this.getXY(rotateArr, nodelist);
+        //判断nxtPos的边界
+        this.checkBoder(nxtPos);
+        /*
+         **如果出界, 位移调整位置; 没有出界
+         */
+        // 旋转后移动方块
+        this.move(nxtPos, 'rotateFlag');
+        if (this.rotateFlag) this.arr = rotateArr;
+      }
+
+      // 检测移动
+      check(dir) {
+        this.moveFlag = true;
+        // 下一步的位置
+        let nxtPos = [];
+
+        // 判断方向
+        // 获取nxtPos
+        let step = dir === 'left' ? -1 : 1;
+        for (let i = 0, len = this.pos.length; i < len; i++) {
+          if (dir === 'down') {
+            nxtPos.push([this.pos[i][0], this.pos[i][1] + step]);
+          } else {
+            nxtPos.push([this.pos[i][0] + step, this.pos[i][1]]);
+          }
+        }
+        // 判断边界
+        this.checkBoder(nxtPos, dir);
+        //移动
+        this.move(nxtPos, 'moveFlag');
+
+        // 移动完更新this.x, this.y
+        if (this.moveFlag) {
+          if (dir === 'down') {
+            this.y += step;
+            return
+          }
+          this.x += step;
+        }
+      }
+
+      // 判断边界
+      checkBoder(nxtPos, dir) {
+        // 有堆积
+        if (map.deadBlocks.length) {
+          // 如果nxtPos与deadBlocks有重合，则停止move
+          for (let i = 0, len = map.deadBlocks.length; i < len; i++) {
+            for (let j = 0, nxtLen = nxtPos.length; j < nxtLen; j++) {
+              if (nxtPos[j][0] === map.deadBlocks[i].x && nxtPos[j][1] === map.deadBlocks[i].y) {
+                //判断旋转
+                if (!dir) {
+                  this.rotateFlag = false;
+                  return;
+                }
+                //判断移动
+                this.moveFlag = false;
+                console.log('barriar')
+                if (dir === 'down') {
+                  this.stockDead();
+                }
+                return
+              }
+            }
+          }
+        }
+
+        // 没堆积 (补充)
+        for (let i = 0, len = nxtPos.length; i < len; i++) {
+          if (nxtPos[i][1] === MAP_COL) { // 底边
+            if (!dir) { //判断旋转
+              this.rotateFlag = false;
+              return;
+            }
+            this.moveFlag = false;
+            console.log('ground');
+            this.stockDead();
+            return;
+          }
+          if (nxtPos[i][0] < 0 || nxtPos[i][0] === MAP_LEN) { // 侧边
+            if (!dir) { //判断旋转
+              this.rotateFlag = false;
+              return;
+            }
+            this.moveFlag = false;
+            console.log('wall');
+            return;
+          }
+        }
+      }
+
+      // 移动到指定位置posArr
+      move(posArr, flag) {
+        if (this[flag]) { // 如果可移动则移动
+          for (let i = 0, len = posArr.length; i < len; i++) {
+            this.blockCells[i].move(posArr[i][0], posArr[i][1])
+          }
+          // 每移动一次更新方块的位置
+          this.pos = posArr;
+        }
+      }
+
+      // //快速移动到抵补
+      // quickDown(nodelist){
+
+      // }
+
+      // 堆积block
+      stockDead() {
+        // 给map记录deadblock位置信息
+        this.blockCells.forEach(el => {
+          for (let i = 0, len = map.deadBlocks.length; i < len; i++) {
+            if (el.x === map.deadBlocks[i][0] && el.y === map.deadBlocks[i][1]) break;
+            map.deadBlocks.push(el);
+            break;
+          }
+          if (!map.deadBlocks.length) map.deadBlocks.push(el);
+        })
+        // 改变class
+        this.blockCells.forEach(el => {
+          el.cell.style.background = '#7f8c8d';
+        })
+
+        //消行
+        this.eliminate();
+        //控制游戏重启
+        if (!game) return
+        game.stop();
+        game.start();
+      }
+
+      // 消行
+      eliminate() {
+        let deadBlocks = map.deadBlocks;
+        //找出可以消除的行
+        for (let r = MAP_COL - 1; r > 0; r--) {
+          let idxs = []
+          let num = 0; //该行的cell个数
+          deadBlocks.forEach((el, i) => {
+            if (!game) return
+            if (el.y === 0) {
+              game.over();
+              return;
+            }
+            if (el.y === r) {
+              num++;
+              idxs.push(i);
+            };
+          })
+          // 消行
+          if (num === MAP_LEN) {
+            idxs.forEach(i => {
+              deadBlocks[i].remove(this.map);
+              delete deadBlocks[i];
+            })
+            //下移
+            deadBlocks.forEach((el, i) => {
+              if (el.y < r) el.move(el.x, el.y + 1);
+            })
+            r++; //调整当前行数
+            //记分
+            game.addScore();
+          }
+        }
+        //整理map.deadBlocks
+        for (let i = deadBlocks.length; i >= 0; i--) {
+          if (deadBlocks[i] == undefined) {
+            deadBlocks.splice(i, 1)
+          }
+        }
+      }
+
+      remove() {
+        this.blockCells.forEach(el => {
+          el.remove(this.map);
+        })
+      }
+    }
+
+    class Game {
+      constructor() {
+        this.timer = null;
+        this.level = 1;
+        this.score = 0;
+        this.speed = 500;
+        this.pause = false;
+      }
+
+      init() {
+        this.start(true);
+        this.control();
+        map = new Map;
+        START.style.display = 'none';
+        GAME_OVER.style.display = 'none';
+        GAME.style.display = 'flex';
+      }
+      start(first) { // first - false/非第一次, true/第一次
+        block = first ? new Block(MAP) : new Block(MAP, false, nextBlock.arr, nextBlock.color);
+        block.init();
+        this.timer = setInterval(() => {
+          block.check('down')
+        }, this.speed);
+        if (!first) nextBlock.remove();
+        nextBlock = new Block(PREVIEW, true);
+        nextBlock.init();
+        //防止颜色相同 
+        while (nextBlock.color === block.color) {
+          nextBlock.color = COLOR[random(0, COLOR.length - 1)];
+        }
+        nextBlock.blockCells.forEach(el => {
+          el.cell.style.background = nextBlock.color;
+        })
+      }
+      handlePause() {
+        this.pause = !this.pause;
+        if (this.pause) {
+          this.stop();
+          return;
+        }
+        this.timer = setInterval(() => {
+          block.check('down')
+        }, this.speed);
+      }
+      stop() {
+        clearInterval(this.timer);
+      }
+      over() {
+        this.stop();
+        GAME.style.display = 'none';
+        GAME_OVER.style.display = 'flex';
+        block.remove(MAP);
+        block = null;
+        nextBlock.remove(PREVIEW);
+        nextBlock = null;
+        map.deadBlocks.forEach(el => {
+          el.remove(MAP);
+        })
+        map = null;
+        game = null;
+      }
+      addScore() {
+        this.score++;
+        SCORE.innerHTML = this.score;
+        console.log(this.score)
+        if (!(this.score % 10)) {
+          this.level++;
+          LEVEL.innerHTML = this.level;
+          this.speed /= 2;
+        }
+      }
+      // 控制
+      control() {
+        document.onkeydown = e => {
+          switch (e.keyCode) {
+            case 37: //left
+              if (!this.pause) {
+                console.log(this.pause)
+                block.check('left');
+              }
+              break;
+            case 38: //up - 旋转变换
+              if (!this.pause) block.rotate(block.arr, true);
+              break;
+            case 39: //right
+              if (!this.pause) block.check('right');
+              break;
+            case 40: //down
+              if (!this.pause) block.check('down');
+              break;
+            case 32:
+              game.handlePause();
+              // block.quickDown(blocknode)
+              break;
+            case 13: //enter
+              game = new Game;
+              game.init();
+              break;
+          }
+        }
+      }
+    }
+
+
+
+
+    window.onload = e => {
+      //地图
+      MAP.style.width = MAP_WIDTH + 'px';
+      MAP.style.height = MAP_HEIGHT + 'px';
+
+      // nextblock
+      PREVIEW.style.width = `${CELL * 5}px`;
+      PREVIEW.style.height = `${CELL * 5}px`;
+
+      //game
+      game = new Game;
+      game.control();
+    }
+  </script>
+</body>
+
+</html>
