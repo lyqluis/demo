@@ -1,0 +1,138 @@
+﻿1、头部文档声明的类型有哪些，简单说明
+
+HTML 5: 
+<!DOCTYPE html>
+
+
+
+
+2、行元素、块元素有哪些以及他们的区别
+
+块级: div, p, form, ul, li, ol, dl, form, address, menu, table...
+
+- 他会独占一行，在默认情况下，其其宽度自动填满其父元素的宽度;
+
+- 块级元素可以设置width、height属性;
+
+- 块级元素即使设置了宽度也是独占一行，块级元素可以设置margin、padding属性;
+
+
+
+行内: span, strong, em, br, img, input, label, select, textarea...  
+
+- 行内元素不会独占一行，相邻的行内元素会排列在同一行里，直到行排不下，就自动换行，其宽度随内容而变化；
+
+- 行内元素的width、height属性则无效；
+
+- 行内元素的margin、padding属性很奇怪，水平方向的padding-left、padding-rigtht、margin-left、padding-right都会产生边距效果，但是竖直方向的padding-top、padding-bottom、margin-top、margin-bottom却不产生边距效果
+
+
+
+
+3、a标签能否嵌套a标签。能或者不能都请说明原因
+
+不能。因为a标签是内联元素
+
+原html：
+
+<a href="#outer">
+	outerA
+    
+	<a href="#inner">innerA</a>
+</a>
+
+浏览器解析：
+<a href="#outer">outerA</a>
+
+<a href="#inner">innerA</a>
+
+
+
+解决
+
+1.内层a标签加一层object标签嵌套。火狐和谷歌、IE9支持；IE8不支持object标签；
+
+2.外层a标签display:inline-block，调整里层a标签及外层a的z-index，使得鼠标能正确选中a标签；
+
+
+
+
+4、文档声明能写在html里面吗？
+不能；声明不是 HTML 标签；
+
+
+5、strong标签和b标签有什么区别，em和i标签有什么区别
+
+strong标签是一个逻辑标签，它的作用是加强字符的语气，一般来说，加强字符的语气是通过将字符变为bold来实现的；
+
+b标签是一个实体标签，它所包围的字符将被设为bold；
+
+* strong是web标准中xhtml的标签，通过强调来加粗；b是html中加粗；
+
+
+
+em和i都是斜体
+em，逻辑元素，告诉浏览器把其中的文本表示为强调的内容；
+
+i，物理元素， 直接加斜
+
+
+
+
+6、link和@import有什么区别
+
+- @import是 CSS 提供的语法规则，只有导入样式表的作用；link是HTML提供的标签，不仅可以加载 CSS 文件，还可以定义 RSS、rel 连接属性等；
+- 加载页面时，link标签引入的 CSS 被同时加载；
+- @import引入的 CSS 将在页面加载完毕后被加载；
+
+- @import是 CSS2.1 才有的语法，故只可在 IE5+ 才能识别；link标签作为 HTML 元素，不存在兼容性问题；
+
+- link引入的样式权重大于@import引入的样式；
+
+7、img标签中alt和title有什么区别和作用
+- alt属性用来指定替换文字
+
+- title，title属性提供非本质的额外信息，大部分的可视化浏览器在鼠标悬浮在特定元素上时显示title文字为提示信息
+
+
+
+
+8、border: 0和border: none有什么区别
+border: 0 - 按border默认值理解，浏览器依然对border渲染，占用内存；
+
+border: none - 不渲染border，不占内存
+
+
+
+
+9、中文使用word-spacing和letter-spacing能否生效
+
+word不行，letter可以
+
+
+
+
+10、定位元素有哪些，分别说明用法。
+
+static - 默认值。无特殊定位，对象遵循HTML定位规则（忽略 top, bottom, left, right 或者 z-index 声明）。
+
+absolute - 将对象从文档流中拖出，使用 left ， right ， top ， bottom 等属性相对于其最接近的一个最有定位设置的父对象进行绝对定位。如果不存在这样的父对象，则依据 body对象。而其层叠通过z-index属性定义
+
+fixed - 未支持。对象定位遵从绝对(absolute)方式
+relative - 对象不可层叠，但将依据 left ， right ， top ， bottom 等属性在正常文档流中偏移位置
+
+
+
+
+11、浮动布局原理是什么，有什么需要注意的点，如何解决
+
+使用float使元素向左或向右移动，使元素共享一行，类似于给元素加了inline-block的作用。
+浮动的框可以向左或向右移动，直到它的外边缘碰到包含框或另一个浮动框的边框为止。由于浮动框不在文档的普通流中，所以文档的普通流中的块框表现得就像浮动框不存在一样。
+- 父元素高度坍塌 - clear: both / overflow: hidden;
+
+12、display: none和visibile: hidden的区别
+
+display - 不保留物理空间
+
+visible - 保留物理空间
+

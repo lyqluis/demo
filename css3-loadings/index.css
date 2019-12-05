@@ -1,0 +1,171 @@
+.loadings{
+    margin: auto;
+    text-align: center;
+}
+.wrapper{
+    /* background: lightgreen; */
+    width: 300px;
+    height: 100px;
+    margin: auto;
+    line-height: 100px;
+    display: flex;
+}
+.wrapper div{
+    width: 100px;
+    margin: 0 30px;
+}
+.wrapper>span{
+    display: inline-block;
+}
+
+/* load1 */
+#load1 {
+    /* display: flex; */
+}
+#load1 span{
+    display: inline-block;
+    height: 100px;
+    width: 100px;
+    background: lightcoral;
+    animation: load1 1.5s infinite ease-in-out;
+}
+@keyframes load1{
+    0%{
+        transform: rotateX(0);
+    }
+    50%{
+        transform: rotateX(180deg);
+    }
+    100%{
+        transform: rotateZ(180deg);
+    }
+}
+
+/* load2 */
+#load2{
+    display: flex;
+}
+#load2 span{
+    height: 100px;
+    width: 100px;
+    background: lightcoral;
+    position: absolute;
+    border-radius: 50%;
+    animation: load2 1.5s ease alternate infinite;
+}
+@keyframes load2{
+    0%{
+        transform: scale(1);
+        opacity: 0.5;
+    }
+    100%{
+        transform: scale(0);
+        opacity: 1;
+    }
+}
+#load2 span:nth-child(2){
+    animation-delay: 1.5s;
+}
+
+
+
+/* load3 */
+#load3 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+#load3 span{
+    display: inline-block;
+    height: 40px;
+    width: 15px;
+    background: lightcoral;
+    animation: load3 1s infinite ease-in-out;
+}
+@keyframes load3{
+    0%, 50%, 100%{
+        height: 40px;
+    }
+    30%{
+        height: 100%;
+    }
+}
+#load3 span:nth-child(2){
+    animation-delay: 0.1s;
+}
+#load3 span:nth-child(3){
+    animation-delay: 0.2s;
+}
+#load3 span:nth-child(4){
+    animation-delay: 0.3s;
+}
+#load3 span:nth-child(5){
+    animation-delay: 0.4s;
+}
+
+/* load4 */
+#load4 {
+    position: relative;
+}
+#load4 span{
+    display: inline-block;
+    height: 40px;
+    width: 40px;
+    position: absolute;
+    background: lightcoral;
+    top: 60px;
+    left: 60px;
+    animation: load4 2s infinite ease-in-out;
+}
+@keyframes load4{
+    0%{
+        top: 60px;
+        left: 60px;   
+        transform: rotate(0) scale(1); 
+    }
+    25%{
+        top: 60px;
+        left: 0;
+        transform: rotate(-90deg) scale(0.5);
+    }
+    50%{
+        top: 0;
+        left: 0;
+        transform: rotate(-180deg) scale(1);
+    }
+    75%{
+        top: 0;
+        left: 60px;
+        transform: rotate(-270deg) scale(0.5); 
+    }
+    100%{
+        /* transform: rotateZ(180deg); */
+    }
+}
+#load4 span:nth-child(2){
+    animation-delay: 1s;
+}
+
+
+/* load5 */
+#load5{
+    display: flex;
+}
+#load5 span{
+    height: 100px;
+    width: 100px;
+    background: lightcoral;
+    /* position: absolute; */
+    border-radius: 50%;
+    animation: load5 1.5s ease-in-out infinite;
+}
+@keyframes load5{
+    0%{
+        transform: scale(0);
+        opacity: 1;
+    }
+    100%{
+        transform: scale(1);
+        opacity: 0;
+    }
+}
