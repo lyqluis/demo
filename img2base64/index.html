@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>img2base64</title>
+		<style>
+			.no {
+				display: none;
+			}
+			.center {
+				width: 50%;
+				margin: 5px auto;
+				display: flex;
+				justify-content: center;
+			}
+			[class$="put"] {
+				flex: none;
+				margin: 10px;
+				padding: 5px;
+				width: 200px;
+				height: 200px;
+				border: 1px solid #000;
+				border-radius: 5%;
+				overflow: hidden;
+				word-break: break-all;
+			}
+			.input {
+				display: flex;
+				align-items: center;
+				border: 1px dashed #000;
+			}
+			img{
+				width: 100%;
+				height: auto;
+			}
+			.input-active {
+				background: lightcoral;
+			}
+			.output {
+				overflow: auto;
+			}
+		</style>
+	</head>
+	<body>
+		<input type="file" class="no" />
+		<div class="center">
+			<div class="input">
+				<p>click to choose an image / drag an iamge here</p>
+				<img class="no" src="" alt="" />
+			</div>
+			<div class="output"></div>
+		</div>
+		<script src="./base64.js"></script>
+		<script>
+			const input = getEl("input")
+			const img = getEl("img")
+			const p = getEl("p")
+			const drop = getEl(".input")
+			const output = getEl(".output")
+
+			drop.addEventListener("click", (e) => {
+				input.click()
+			})
+
+			input.addEventListener("change", async (e) => {
+				const url = await getBase64(e.target.files)
+				showOutput(url, output, img, p)
+			})
+
+			drop.addEventListener("dragenter", (e) => {
+				preventDefatult(e)
+				addClass(drop, "input-active")
+			})
+			drop.addEventListener("dragover", preventDefatult)
+			drop.addEventListener("drop", async (e) => {
+				preventDefatult(e)
+				const url = await getBase64(e.dataTransfer.files)
+				showOutput(url, output, img, p)
+				removeClass(drop, "input-active")
+			})
+		</script>
+	</body>
+</html>
