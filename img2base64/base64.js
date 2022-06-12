@@ -19,6 +19,7 @@ function getEl(el) {
 
 function showOutput(url, output, img, p) {
   img.src = url
+  img.className = ''
   output.innerText = url
   p.style.display = 'none'
 }
