@@ -196,7 +196,7 @@ for (let r = MAP_COL - 1; r > 0; r--) {
 - 没有写直接下落的功能
 
 ## 传送门
-[在线食用](https://xiannvjiadexiaogouzi.github.io/demo/tetris/tetris.html)
-[源码](https://github.com/xiannvjiadexiaogouzi/demo/blob/master/tetris/tetris.html)
+[在线食用](https://lyqluis.github.io/demo/tetris/tetris.html)
+[源码](https://github.com/lyqluis/demo/blob/master/tetris/tetris.html)
 
 😺 喜欢的朋友欢迎 star 🌟

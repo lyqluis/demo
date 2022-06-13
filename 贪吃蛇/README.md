@@ -1,8 +1,8 @@
 # 用 ES6 撸一个贪吃蛇
 
 ### 传送门
-[源码](https://github.com/xiannvjiadexiaogouzi/demo/blob/master/%E8%B4%AA%E5%90%83%E8%9B%87/snake.html)
-[在线试玩](https://xiannvjiadexiaogouzi.github.io/demo/%E8%B4%AA%E5%90%83%E8%9B%87/snake.html)
+[源码](https://github.com/lyqluis/demo/blob/master/%E8%B4%AA%E5%90%83%E8%9B%87/snake.html)
+[在线试玩](https://lyqluis.github.io/demo/%E8%B4%AA%E5%90%83%E8%9B%87/snake.html)
 
 ### 前言
 那天放假休息，看到网上有个用js算法写出自动巡径的贪吃蛇，虽然算法是抄的，但是不明觉厉，于是心血来潮，想撸一个低配的正常版贪吃蛇
@@ -170,8 +170,5 @@ over() {
 ### 小结
 贪吃蛇相比于俄罗斯方块就简单很多，整体代码也没有多少，真的很适合新手小白来练习js和es6；
 
-### 传送门
-[源码](https://github.com/xiannvjiadexiaogouzi/demo/blob/master/%E8%B4%AA%E5%90%83%E8%9B%87/snake.html)
-[在线试玩](https://xiannvjiadexiaogouzi.github.io/demo/%E8%B4%AA%E5%90%83%E8%9B%87/snake.html)
 
 😀 各位喜欢的看官，欢迎 star 🌟
