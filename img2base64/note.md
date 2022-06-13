@@ -94,3 +94,6 @@ function encodeImageFileAsURL(element) {
 
 - 添加拖拽区域 `<div class="drag">`
 - 为拖拽区域添加事件监听 `dragenter`、`dragover`、`drop`
+  - 取消 3 个事件中的默认行为，`e.preventDefault()`，否则拖拽文件会让浏览器自动打开该文件
+  - 在 `dragenter` 中添加样式的改变
+  - 在 `drop` 中添加对文件的读取
